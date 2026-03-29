@@ -304,103 +304,155 @@ a { text-decoration: none; color: inherit; }
 /* ═══════════════════════════════════════ */
 /*  PRAYER TIMES STRIP                     */
 /* ═══════════════════════════════════════ */
-.prayer-strip {
+/* Prayer Times Card — Table Layout */
+.prayer-times-card {
   background: var(--white);
-  padding: 40px 0 32px;
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 4px 30px rgba(0,0,0,0.04);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  max-width: 700px;
+  margin: 0 auto;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
 }
-.prayer-strip-header {
+
+.prayer-next {
+  background: var(--primary);
+  color: #fff;
+  padding: 16px 24px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 28px;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-.prayer-strip h2 {
-  font-size: 26px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-}
-.prayer-strip-date {
-  font-size: 14px;
-  color: var(--text-light);
-  margin-top: 4px;
-}
-.prayer-strip-next {
-  display: flex;
   align-items: center;
-  gap: 10px;
-  background: rgba(107,28,35,0.06);
-  padding: 10px 18px;
-  border-radius: 10px;
-  border: 1px solid rgba(107,28,35,0.1);
 }
-.next-label {
-  font-size: 10px;
+
+.prayer-next-label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.prayer-next-name {
+  font-size: 1.3rem;
   font-weight: 700;
+}
+
+.prayer-next-time {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.prayer-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.prayer-table th {
+  padding: 14px 24px;
+  text-align: left;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--text-light);
+  border-bottom: 1px solid var(--border);
 }
-.next-name {
-  font-size: 16px;
+
+.prayer-table th:last-child,
+.prayer-table td:last-child {
+  text-align: right;
+}
+
+.prayer-table th:nth-child(2),
+.prayer-table td:nth-child(2) {
+  text-align: center;
+}
+
+.prayer-table td {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  font-size: 1rem;
+}
+
+.prayer-table tr:last-child td {
+  border-bottom: none;
+}
+
+.prayer-table tr.active-prayer {
+  background: rgba(107, 28, 35, 0.06);
+}
+
+.prayer-table tr.active-prayer td:first-child {
+  border-left: 3px solid var(--gold);
+}
+
+.prayer-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.prayer-name-ar {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+.prayer-time {
+  color: var(--text);
+}
+
+.prayer-iqamah {
   font-weight: 700;
   color: var(--primary);
 }
-.next-countdown {
-  font-size: 16px;
+
+.prayer-juma-row {
+  background: rgba(107, 28, 35, 0.04);
+}
+
+.prayer-juma-row .prayer-name {
+  color: var(--primary);
+}
+
+.next-badge {
+  display: inline-block;
+  background: var(--gold);
+  color: #1A1A1A;
+  font-size: 0.65rem;
   font-weight: 700;
-  color: var(--gold);
-  font-variant-numeric: tabular-nums;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  margin-left: 8px;
+  vertical-align: middle;
 }
 
-/* Prayer Grid */
-.prayer-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
+/* Extra Times */
+.extra-times {
+  display: flex;
   gap: 12px;
-  margin-bottom: 20px;
+  max-width: 700px;
+  margin: 20px auto 0;
 }
-.prayer-col {
-  text-align: center;
-  padding: 20px 12px;
-  background: var(--surface);
-  border-radius: var(--radius);
+
+.extra-time-card {
+  flex: 1;
+  background: var(--white);
   border: 1px solid var(--border);
-  transition: all var(--transition);
-}
-.prayer-col.active {
-  background: var(--primary);
-  color: #fff;
-  border-color: var(--primary);
-  box-shadow: 0 4px 20px rgba(107,28,35,0.2);
-  transform: translateY(-4px);
-}
-.prayer-col.active .prayer-col-arabic { color: rgba(255,255,255,0.6); }
-.prayer-col.active .prayer-col-begins { color: rgba(255,255,255,0.7); }
-.prayer-col.active .prayer-col-jamat { color: var(--gold); }
-.prayer-col.active .prayer-col-label { color: rgba(255,255,255,0.5); }
-
-.prayer-col-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-.prayer-col-arabic { font-size: 12px; color: var(--text-light); margin-bottom: 12px; font-family: 'Amiri', serif; }
-.prayer-col-begins { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; font-variant-numeric: tabular-nums; }
-.prayer-col-jamat { font-size: 20px; font-weight: 800; color: var(--primary); font-variant-numeric: tabular-nums; }
-.prayer-col-label { font-size: 10px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-
-/* Juma bar */
-.prayer-juma {
+  border-radius: 12px;
+  padding: 16px;
   text-align: center;
-  padding: 14px;
-  background: rgba(212,175,55,0.06);
-  border: 1px solid rgba(212,175,55,0.15);
-  border-radius: var(--radius);
-  font-size: 14px;
-  color: var(--text-secondary);
 }
-.prayer-juma strong { color: var(--primary); font-weight: 700; }
-.juma-sep { margin: 0 12px; color: var(--border); }
+
+.extra-time-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+
+.extra-time-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
 
 /* Prayer action buttons */
 .prayer-actions {
@@ -989,7 +1041,7 @@ a { text-decoration: none; color: inherit; }
     box-shadow: var(--shadow-md);
   }
   .nav-links.open .nav-donate { text-align: center; }
-  .prayer-grid { grid-template-columns: repeat(3, 1fr); }
+  .extra-times { flex-direction: column; }
   .about-grid { grid-template-columns: 1fr; gap: 32px; }
   .app-inner { flex-direction: column; text-align: center; gap: 32px; }
   .app-badges { justify-content: center; }
@@ -997,7 +1049,7 @@ a { text-decoration: none; color: inherit; }
 }
 @media (max-width: 600px) {
   .top-bar-left { display: none; }
-  .prayer-grid { grid-template-columns: repeat(2, 1fr); }
+  .prayer-table th, .prayer-table td { padding: 12px 16px; font-size: 0.9rem; }
   .hero { min-height: 500px; }
   .hero-time { font-size: 56px; }
   .section { padding: 56px 0; }

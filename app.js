@@ -42,134 +42,128 @@ updateClock();
   } catch {}
 })();
 
-// ─── Prayer Times ───
-const PRAYER_ORDER = ['fajr', 'zohr', 'asr', 'maghrib', 'isha'];
-const PRAYER_NAMES = { fajr: 'Fajr', zohr: 'Zohr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' };
+// ─── Prayer Times (Table Layout) ───
+const API_BASE = 'https://techtronix.co.uk/shared/salaah_api.php?partner_id=5';
 
-const DEFAULT_TIMES = {
-  fajr: { begins: '6:30 AM', jamat: '7:00 AM' },
-  sunrise: { begins: '7:45 AM' },
-  zohr: { begins: '1:00 PM', jamat: '1:30 PM' },
-  asr: { begins: '3:30 PM', jamat: '4:00 PM' },
-  maghrib: { begins: '5:00 PM', jamat: '5:08 PM' },
-  isha: { begins: '7:30 PM', jamat: '8:00 PM' },
-};
+function formatApiTime(time24) {
+  if (!time24) return '--:--';
+  if (/am|pm/i.test(time24)) return time24.toUpperCase().replace(/\s+/g, ' ');
+  const parts = time24.split(':');
+  const hour = parseInt(parts[0]);
+  const minutes = parts[1];
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  return (hour % 12 || 12) + ':' + minutes + ' ' + ampm;
+}
+
+function timeToMinutes(time24) {
+  if (!time24) return 0;
+  // Handle both 24h and 12h formats
+  if (/am|pm/i.test(time24)) {
+    const up = time24.toUpperCase().trim();
+    const clean = up.replace(/(AM|PM)/g, '').trim();
+    const [h, m] = clean.split(':').map(Number);
+    let hrs = h;
+    if (up.includes('PM') && h !== 12) hrs += 12;
+    if (up.includes('AM') && h === 12) hrs = 0;
+    return hrs * 60 + (m || 0);
+  }
+  const parts = time24.split(':');
+  return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+}
+
+const PRAYERS = [
+  { name: 'Fajr', key: 'fajr', ar: '\u0627\u0644\u0641\u062c\u0631' },
+  { name: 'Zohr', key: 'zuhr', ar: '\u0627\u0644\u0638\u0647\u0631' },
+  { name: 'Asr', key: 'asr', ar: '\u0627\u0644\u0639\u0635\u0631' },
+  { name: 'Maghrib', key: 'maghrib', ar: '\u0627\u0644\u0645\u063a\u0631\u0628' },
+  { name: 'Isha', key: 'isha', ar: '\u0627\u0644\u0639\u0634\u0627\u0621' }
+];
+
+const ALL_PRAYERS = [
+  { name: 'Fajr', key: 'fajr' },
+  { name: 'Sunrise', key: 'sunrise' },
+  { name: 'Zohr', key: 'zuhr' },
+  { name: 'Asr', key: 'asr' },
+  { name: 'Maghrib', key: 'maghrib' },
+  { name: 'Isha', key: 'isha' }
+];
+
+let cachedData = null;
 
 async function fetchPrayerTimes() {
   try {
-    const res = await fetch('https://techtronix.co.uk/shared/salaah_api.php?partner_id=5');
+    const res = await fetch(API_BASE);
     if (!res.ok) throw new Error();
-    const raw = await res.json();
-    const data = raw?.today || raw;
-    renderPrayerTimes(data || null);
+    cachedData = await res.json();
+    renderPrayerTable(cachedData);
   } catch {
-    renderPrayerTimes(null);
+    renderPrayerTable(null);
   }
 }
 
-function to12(t) {
-  if (!t) return '--:--';
-  if (/am|pm/i.test(t)) return t.toUpperCase().replace(/\s+/g, ' ');
-  const [h, m] = t.split(':').map(Number);
-  if (isNaN(h)) return t;
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${ampm}`;
-}
-
-function parseMin(t) {
-  if (!t) return null;
-  const up = t.toUpperCase().trim();
-  const clean = up.replace(/(AM|PM)/g, '').trim();
-  const [h, m] = clean.split(':').map(Number);
-  let hrs = h;
-  if (up.includes('PM') && h !== 12) hrs += 12;
-  if (up.includes('AM') && h === 12) hrs = 0;
-  return hrs * 60 + (m || 0);
-}
-
-let prayerMins = {};
-
-function renderPrayerTimes(data) {
-  // Map HTML IDs to API field names (API uses zuhr not zohr, sunrise_begins not sunrise)
-  const MAP = {
-    fajr:    { b: ['fajr_begins'], j: ['fajr_jamat'] },
-    sunrise: { b: ['sunrise_begins', 'sunrise'], j: [] },
-    zohr:    { b: ['zuhr_begins', 'zohr_begins'], j: ['zuhr_jamat', 'zohr_jamat'] },
-    asr:     { b: ['asr_begins'], j: ['asr_jamat'] },
-    maghrib: { b: ['maghrib_begins'], j: ['maghrib_jamat'] },
-    isha:    { b: ['isha_begins'], j: ['isha_jamat'] },
-  };
-
-  function pick(keys) {
-    for (const k of keys) { if (data?.[k]) return data[k]; }
-    return null;
-  }
-
-  Object.entries(MAP).forEach(([p, fields]) => {
-    const bEl = document.getElementById(p + '-begins');
-    const jEl = document.getElementById(p + '-jamat');
-    const begins = pick(fields.b) || DEFAULT_TIMES[p]?.begins;
-    const jamat = pick(fields.j) || DEFAULT_TIMES[p]?.jamat;
-    if (bEl) bEl.textContent = to12(begins);
-    if (jEl) jEl.textContent = to12(jamat);
-    if (p !== 'sunrise' && jamat) prayerMins[p] = parseMin(to12(jamat));
-  });
-
-  // Juma (API uses juma_1st/juma_2nd)
-  const j1 = data?.juma_1st || data?.juma1;
-  const j2 = data?.juma_2nd || data?.juma2;
-  if (j1) document.getElementById('juma1').textContent = '1st — ' + to12(j1);
-  if (j2) document.getElementById('juma2').textContent = '2nd — ' + to12(j2);
-
-  highlightNext();
-}
-
-function highlightNext() {
+function getNextPrayer(data) {
   const now = new Date();
   const nowMin = now.getHours() * 60 + now.getMinutes();
-  let nextP = null;
-  let nextMin = null;
 
-  for (const p of PRAYER_ORDER) {
-    if (prayerMins[p] && prayerMins[p] > nowMin) {
-      nextP = p;
-      nextMin = prayerMins[p];
-      break;
-    }
+  for (const p of ALL_PRAYERS) {
+    const jamatTime = p.key === 'sunrise' ? data.sunrise : data[p.key + '_jamat'];
+    if (jamatTime && timeToMinutes(jamatTime) > nowMin) return p;
   }
-  if (!nextP) {
-    nextP = 'fajr';
-    nextMin = (prayerMins.fajr || 360) + 1440;
-  }
-
-  // Highlight column
-  document.querySelectorAll('.prayer-col').forEach(c => c.classList.remove('active'));
-  const col = document.getElementById('col-' + nextP);
-  if (col) col.classList.add('active');
-
-  // Badge
-  document.getElementById('nextPrayerName').textContent = PRAYER_NAMES[nextP] || nextP;
-  startCountdown(nextMin);
+  return ALL_PRAYERS[0]; // All passed - next is Fajr
 }
 
-let countdownInterval;
-function startCountdown(targetMin) {
-  if (countdownInterval) clearInterval(countdownInterval);
-  function tick() {
-    const now = new Date();
-    const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-    let diff = targetMin * 60 - nowSec;
-    if (diff < 0) diff += 86400;
-    const h = Math.floor(diff / 3600);
-    const m = Math.floor((diff % 3600) / 60);
-    const s = diff % 60;
-    const el = document.getElementById('nextCountdown');
-    if (el) el.textContent = h > 0
-      ? `${h}h ${String(m).padStart(2, '0')}m`
-      : `${m}m ${String(s).padStart(2, '0')}s`;
+function renderPrayerTable(data) {
+  const tbody = document.getElementById('prayer-tbody');
+  if (!tbody || !data) return;
+
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const next = getNextPrayer(data);
+
+  let html = '';
+  PRAYERS.forEach(p => {
+    const begins = data[p.key + '_begins'];
+    const jamat = data[p.key + '_jamat'];
+    const isNext = p.name === next.name && next.name !== 'Sunrise';
+
+    html += `<tr class="${isNext ? 'active-prayer' : ''}">`;
+    html += `<td><div class="prayer-name">${p.name}`;
+    if (isNext) html += ' <span class="next-badge">Next</span>';
+    html += `</div><div class="prayer-name-ar">${p.ar}</div></td>`;
+    html += `<td class="prayer-time">${formatApiTime(begins)}</td>`;
+    html += `<td class="prayer-iqamah">${formatApiTime(jamat)}</td>`;
+    html += '</tr>';
+  });
+
+  // Jumu'ah row
+  const juma1 = data.juma_1st;
+  const juma2 = data.juma_2nd;
+  html += '<tr class="prayer-juma-row">';
+  html += '<td><div class="prayer-name" style="color:var(--primary)">Jumu\'ah</div><div class="prayer-name-ar">\u0627\u0644\u062c\u0645\u0639\u0629</div></td>';
+  html += `<td class="prayer-time">1st: ${formatApiTime(juma1)}</td>`;
+  html += `<td class="prayer-iqamah">2nd: ${formatApiTime(juma2)}</td>`;
+  html += '</tr>';
+
+  tbody.innerHTML = html;
+
+  // Update next prayer banner
+  const nextEl = document.getElementById('next-prayer-name');
+  const nextTimeEl = document.getElementById('next-prayer-time');
+  if (nextEl && next.name !== 'Sunrise') {
+    nextEl.textContent = next.name;
+    if (nextTimeEl) nextTimeEl.textContent = formatApiTime(data[next.key + '_jamat']);
+  } else if (nextEl) {
+    nextEl.textContent = 'Sunrise';
+    if (nextTimeEl) nextTimeEl.textContent = formatApiTime(data.sunrise);
   }
-  tick();
-  countdownInterval = setInterval(tick, 1000);
+
+  // Extra times
+  const sunriseEl = document.getElementById('sunrise-time');
+  const ishraqEl = document.getElementById('ishraq-time');
+  const zawaalEl = document.getElementById('zawaal-time');
+  if (sunriseEl) sunriseEl.textContent = formatApiTime(data.sunrise);
+  if (ishraqEl) ishraqEl.textContent = formatApiTime(data.ishraq_begins);
+  if (zawaalEl) zawaalEl.textContent = formatApiTime(data.zawal_begins);
 }
 
 // ─── Fade-in on scroll ───
@@ -316,6 +310,8 @@ function filterArticles(cat, btn) {
 document.addEventListener('DOMContentLoaded', () => {
   fetchPrayerTimes();
   initFadeIn();
+  // Re-render every 30 seconds to update next prayer highlight
+  setInterval(() => { if (cachedData) renderPrayerTable(cachedData); }, 30000);
+  // Refresh API data every 5 minutes
   setInterval(fetchPrayerTimes, 5 * 60 * 1000);
-  setInterval(highlightNext, 60 * 1000);
 });

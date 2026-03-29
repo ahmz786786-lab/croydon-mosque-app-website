@@ -93,69 +93,49 @@
   </section>
 
   <!-- Prayer Times Strip -->
-  <section class="prayer-strip" id="prayer-times">
+  <section class="section" id="prayer-times">
     <div class="container">
-      <div class="prayer-strip-header">
-        <div>
-          <h2>Daily Prayer Times</h2>
-          <p class="prayer-strip-date" id="prayerDate"></p>
+      <div class="prayer-times-card">
+        <div class="prayer-next">
+          <div>
+            <div class="prayer-next-label">Next Prayer</div>
+            <div class="prayer-next-name" id="next-prayer-name">Loading...</div>
+          </div>
+          <div class="prayer-next-time" id="next-prayer-time">--:--</div>
         </div>
-        <div class="prayer-strip-next" id="nextPrayerBadge">
-          <span class="next-label">Next</span>
-          <span class="next-name" id="nextPrayerName">--</span>
-          <span class="next-countdown" id="nextCountdown">--:--</span>
+        <table class="prayer-table">
+          <thead>
+            <tr>
+              <th>Prayer</th>
+              <th>Start</th>
+              <th>Iqamah</th>
+            </tr>
+          </thead>
+          <tbody id="prayer-tbody">
+            <tr><td colspan="3" style="text-align:center;padding:40px;color:var(--text-light)">Loading prayer times...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="extra-times">
+        <div class="extra-time-card">
+          <div class="extra-time-label">Sunrise</div>
+          <div class="extra-time-value" id="sunrise-time">--:--</div>
+        </div>
+        <div class="extra-time-card">
+          <div class="extra-time-label">Ishraq</div>
+          <div class="extra-time-value" id="ishraq-time">--:--</div>
+        </div>
+        <div class="extra-time-card">
+          <div class="extra-time-label">Zawaal</div>
+          <div class="extra-time-value" id="zawaal-time">--:--</div>
         </div>
       </div>
-      <div class="prayer-grid">
-        <div class="prayer-col" id="col-fajr">
-          <div class="prayer-col-name">Fajr</div>
-          <div class="prayer-col-arabic">&#1575;&#1604;&#1601;&#1580;&#1585;</div>
-          <div class="prayer-col-begins" id="fajr-begins">--:--</div>
-          <div class="prayer-col-jamat" id="fajr-jamat">--:--</div>
-          <div class="prayer-col-label">Jam&#257;'ah</div>
-        </div>
-        <div class="prayer-col" id="col-sunrise">
-          <div class="prayer-col-name">Sunrise</div>
-          <div class="prayer-col-arabic">&#1575;&#1604;&#1588;&#1585;&#1608;&#1602;</div>
-          <div class="prayer-col-begins" id="sunrise-begins">--:--</div>
-          <div class="prayer-col-jamat">&mdash;</div>
-          <div class="prayer-col-label">&nbsp;</div>
-        </div>
-        <div class="prayer-col" id="col-zohr">
-          <div class="prayer-col-name">Zohr</div>
-          <div class="prayer-col-arabic">&#1575;&#1604;&#1592;&#1607;&#1585;</div>
-          <div class="prayer-col-begins" id="zohr-begins">--:--</div>
-          <div class="prayer-col-jamat" id="zohr-jamat">--:--</div>
-          <div class="prayer-col-label">Jam&#257;'ah</div>
-        </div>
-        <div class="prayer-col" id="col-asr">
-          <div class="prayer-col-name">Asr</div>
-          <div class="prayer-col-arabic">&#1575;&#1604;&#1593;&#1589;&#1585;</div>
-          <div class="prayer-col-begins" id="asr-begins">--:--</div>
-          <div class="prayer-col-jamat" id="asr-jamat">--:--</div>
-          <div class="prayer-col-label">Jam&#257;'ah</div>
-        </div>
-        <div class="prayer-col" id="col-maghrib">
-          <div class="prayer-col-name">Maghrib</div>
-          <div class="prayer-col-arabic">&#1575;&#1604;&#1605;&#1594;&#1585;&#1576;</div>
-          <div class="prayer-col-begins" id="maghrib-begins">--:--</div>
-          <div class="prayer-col-jamat" id="maghrib-jamat">--:--</div>
-          <div class="prayer-col-label">Jam&#257;'ah</div>
-        </div>
-        <div class="prayer-col" id="col-isha">
-          <div class="prayer-col-name">Isha</div>
-          <div class="prayer-col-arabic">&#1575;&#1604;&#1593;&#1588;&#1575;&#1569;</div>
-          <div class="prayer-col-begins" id="isha-begins">--:--</div>
-          <div class="prayer-col-jamat" id="isha-jamat">--:--</div>
-          <div class="prayer-col-label">Jam&#257;'ah</div>
-        </div>
-      </div>
-      <div class="prayer-juma">
-        <span>Jumu'ah (Friday):</span>
-        <strong id="juma1">1st &mdash; 12:25 PM</strong>
-        <span class="juma-sep">|</span>
-        <strong id="juma2">2nd &mdash; 1:25 PM</strong>
-      </div>
+
+      <p style="text-align:center;margin-top:20px;font-size:0.85rem;color:var(--text-light)">
+        For official Islamic dates refer to <a href="https://www.wifaqululama.co.uk/" target="_blank" rel="noopener">Wifaqul Ulama</a>
+      </p>
+
       <div class="prayer-actions">
         <button onclick="openMonthlyModal()" class="prayer-action-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
